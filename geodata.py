@@ -4,6 +4,7 @@
 # file: geodata.py
 #**********************************
 import datetime
+import string
 
 #helper methods for make_tweet
 def make_time(date_string):
@@ -40,9 +41,30 @@ def make_tweet(tweet_line):
     date_string = tweet_list[3]
     time_string = tweet_list[4]
    
-    text = " ".join(tweet_list[5:])
+    text = " ".join(tweet_list[5:]).lower()
     time = make_time(date_string+" "+time_string)
     lat = float(lat_string)
     lon = float(lon_string)
 
     return {'text':text, 'time':time, 'lat':lat,'lon':lon}
+
+def tweet_text(tweet):
+    """Return the text of a tweet as a string"""
+    return tweet['text']
+
+def tweet_words(tweet):
+    """Return a list of the words in the text of a tweet not
+    including punctuation."""
+    
+    #removes all punctuation marks from tweet['text']
+    tweet_string = tweet['text'].translate(None,string.punctuation) 
+    return tweet_string.split()
+
+
+def tweet_time(tweet):
+    """Return the datetime that represents when the tweet was posted."""
+    return tweet['time']
+
+def tweet_location(tweet):
+    """Return an tuple that represents the tweet's location."""
+    return (tweet['lat'], tweet['lon'])
