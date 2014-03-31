@@ -68,3 +68,22 @@ def tweet_time(tweet):
 def tweet_location(tweet):
     """Return an tuple that represents the tweet's location."""
     return (tweet['lat'], tweet['lon'])
+
+def make_zip(zipcode):
+    """Return a zip code, represented as a python dictionary.
+    zipcode: a list containing a single zip codes data ordered as in zips.csv
+
+    Dictionary keys:
+    zip    -- A string; the zip code
+    atate   -- A string; Two-letter postal code for state
+    lat    -- A number; latitude of zip code location
+    lon    -- A number; longitude of zip code location
+    city   -- A string; name of city assoicated with zip code
+  
+
+    """
+    lat = float(zipcode[2])
+    lon = float(zipcode[3])
+
+    return {'zip':zipcode[0], 'atate':zipcode[1],'lat':lat,'lon':lon,'city':zipcode[4]}
+
