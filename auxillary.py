@@ -12,7 +12,6 @@ import datetime
 #helper methods for make_tweet
 def make_time(date_string):
     """Return a datetime object of the date represented in the string"""
-    
     date_time_list = date_string.split()
     date_list = date_time_list[0].split('-')
     time_list = date_time_list[1].split(':')

@@ -64,7 +64,7 @@ def make_zip(zipcode):
 
     Dictionary keys:
     zip    -- A string; the zip code
-    atate   -- A string; Two-letter postal code for state
+    state   -- A string; Two-letter postal code for state
     lat    -- A number; latitude of zip code location
     lon    -- A number; longitude of zip code location
     city   -- A string; name of city assoicated with zip code
@@ -80,7 +80,7 @@ def make_zip(zipcode):
     lat = float(zipcode[2].strip())
     lon = float(zipcode[3].strip())
 
-    return {'zip':zipcode[0], 'atate':zipcode[1],'lat':lat,'lon':lon,'city':zipcode[4]}
+    return {'zip':zipcode[0], 'state':zipcode[1],'lat':lat,'lon':lon,'city':zipcode[4]}
 
 def find_zip(tweet, zip_list):
     """return zipcode associated with a tweets location data
@@ -99,7 +99,7 @@ def find_zip(tweet, zip_list):
 
     # for zipcodes outside the US
     if(closest > MAX_DISTANCE):
-    	closest_zip = {'zip':'00000','atate':'INTL','lat':tweet['lat'],'lon':tweet['lon'],'city':"international"}
+    	closest_zip = {'zip':'00000','state':'INTL','lat':tweet['lat'],'lon':tweet['lon'],'city':"international"}
 
     return closest_zip
 
@@ -115,9 +115,9 @@ def geo_distance(loc1,loc2):
     lon2 = loc1[1]
     
     lat1, lat2= radians(lat1),radians(lat2) # change to radians
-    lon1,lon2 = radians(lon1),radians(lon2)
+    dlat,dlon = radians(lat2-lat1),radians(lon2-lon1)
 
-    h = sin((lat2-lat1)/2)**2 + cos(lat1)*cos(lat2)*sin((lon2-lon1)/2)**2
+    h = sin((dlat)/2)**2 + cos(lat1)*cos(lat2)*sin((dlon)/2)**2
     d =2*Re*asin(sqrt(h))
 
     return d
@@ -127,5 +127,19 @@ def add_geo(tweets):
     for tweet in tweets: # loop through the tweets list and replace.
         zipcode = find_zip(tweet, zips)
         tweet['zip'] = zipcode['zip']
-        tweet['state']= zipcode['atate']
+        tweet['state']= zipcode['state']
    
+def write_tweets(tweets,outfile):
+    """writes the list of tweets to a text file with name outfile"""
+    out = open(outfile,'w')
+    for tweet in tweets:
+        loc = tweet_location(tweet)
+        out.write('['+str(loc[0])+', '+str(loc[1])+']\t')
+        out.write('6\t')
+        out.write(tweet_time(tweet).strftime('%Y-%m-%d %H:%M:%S')+'\t')
+
+        if('zip' in tweet):
+            out.write(tweet['state']+" "+tweet['zip']+"\t")
+        out.write(tweet_text(tweet)+"\n")
+
+    out.close()
