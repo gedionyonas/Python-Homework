@@ -1,28 +1,17 @@
 #**********************************
 # Name: Gedion Y. Metaferia
-# Date: 3/31/2014
+# Date: 4/2/2014
 # file: geodata.py
 #**********************************
-import datetime
 import string
+from math import sin, cos, sqrt, asin, radians
+import csv
+from auxillary import *
 
-#helper methods for make_tweet
-def make_time(date_string):
-    """Return a datetime object of the date represented in the string"""
-    
-    date_time_list = date_string.split()
-    date_list = date_time_list[0].split('-')
-    time_list = date_time_list[1].split(':')
-    
-    year=int(date_list[0])
-    month=int(date_list[1])
-    day=int(date_list[2])
-    
-    hour=int(time_list[0])
-    minute=int(time_list[1])
-    second=int(time_list[2])
-    
-    return datetime.datetime(year,month,day,hour,minute,second)
+#average radius of the earth in miles
+Re =3959
+MAX_DISTANCE = 500
+
 
 def make_tweet(tweet_line):
     """Return a tweet, represented as a python dictionary.
@@ -36,6 +25,7 @@ def make_tweet(tweet_line):
 
     """
     tweet_list = tweet_line.split()
+    print tweet_list
     lat_string = tweet_list[0][1:-1]
     lon_string = tweet_list[1][:-1]
     date_string = tweet_list[3]
@@ -82,8 +72,61 @@ def make_zip(zipcode):
   
 
     """
-    lat = float(zipcode[2])
-    lon = float(zipcode[3])
+    #remove quote character and spaces
+    for i in range(len(zipcode)):
+    	zipcode[i] = zipcode[i].strip()
+    	zipcode[i] = zipcode[i].strip('\"')
+    	zipcode[i] = zipcode[i].strip()
+
+    lat = float(zipcode[2].strip())
+    lon = float(zipcode[3].strip())
 
     return {'zip':zipcode[0], 'atate':zipcode[1],'lat':lat,'lon':lon,'city':zipcode[4]}
 
+def find_zip(tweet, zip_list):
+    """return zipcode associated with a tweets location data
+    zip_list is a list of zip_cides represented as dictionaries"""
+    
+    tweet_loc = tweet_location(tweet)
+    closest = geo_distance(tweet_loc, (zip_list[0]['la'], zip_list[0]['lon']))
+    closest_zip = zip_lst[0]
+
+    for i in range(1, len(zip_lst)): 
+        zip_loc = (zip_lst[i]['lat'], zip_lst[i]['lon']) 
+        dist = geo_distance (tweet_loc,zip_loc) # calculate distance
+        if dist < closest: # repeat loop if this is not the closest zipcode
+            closest = dist
+            closest_zip = zip_lst[i]
+
+    # for zipcodes outside the US
+    if(closest > MAX_DISTANCE):
+    	closest_zip = {'zip':'00000','atate':'INTL','lat':tweet['lat'],'lon':tweet['lon'],'city':"international"}
+
+    return closest_zip
+
+def geo_distance(loc1,loc2):
+    """Return the great circle distance (in miles) between two
+    tuples of (latitude,longitude)
+
+    Uses the "haversine" formula.
+    http://en.wikipedia.org/wiki/Haversine_formula"""
+    lat1 = loc1[0]
+    lat2 = loc2[0]
+    lon1 = loc1[1]
+    lon2 = loc1[1]
+    
+    lat1, lat2= radians(lat1),radians(lat2) # change to radians
+    lon1,lon2 = radians(lon1),radians(lon2)
+
+    h = sin((lat2-lat1)/2)**2 + cos(lat1)*cos(lat2)*sin((lon2-lon1)/2)**2
+    d =2*Re*asin(sqrt(h))
+
+    return d
+def add_geo(tweets):
+    """adds the new keys state and zip to each tweet dictionary in the list tweets"""
+    zips = zip_list('zips.csv')
+    for k in range (len(tweets)): # loop through the tweets list and replace.
+        zipcode = find_zip(tweets[k], zips)
+        tweets[k]['zip'] = zipcode['zip']
+        tweets[k]['state']= zipcode['state']
+   
