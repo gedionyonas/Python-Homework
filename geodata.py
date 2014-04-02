@@ -6,7 +6,7 @@
 import string
 from math import sin, cos, sqrt, asin, radians
 import csv
-from auxillary import *
+from auxillary import make_time, zip_list
 
 #average radius of the earth in miles
 Re =3959
@@ -25,7 +25,6 @@ def make_tweet(tweet_line):
 
     """
     tweet_list = tweet_line.split()
-    print tweet_list
     lat_string = tweet_list[0][1:-1]
     lon_string = tweet_list[1][:-1]
     date_string = tweet_list[3]
@@ -88,15 +87,15 @@ def find_zip(tweet, zip_list):
     zip_list is a list of zip_cides represented as dictionaries"""
     
     tweet_loc = tweet_location(tweet)
-    closest = geo_distance(tweet_loc, (zip_list[0]['la'], zip_list[0]['lon']))
-    closest_zip = zip_lst[0]
+    closest = geo_distance(tweet_loc, (zip_list[0]['lat'], zip_list[0]['lon']))
+    closest_zip = zip_list[0]
 
-    for i in range(1, len(zip_lst)): 
-        zip_loc = (zip_lst[i]['lat'], zip_lst[i]['lon']) 
+    for i in range(1, len(zip_list)): 
+        zip_loc = (zip_list[i]['lat'], zip_list[i]['lon']) 
         dist = geo_distance (tweet_loc,zip_loc) # calculate distance
         if dist < closest: # repeat loop if this is not the closest zipcode
             closest = dist
-            closest_zip = zip_lst[i]
+            closest_zip = zip_list[i]
 
     # for zipcodes outside the US
     if(closest > MAX_DISTANCE):
@@ -125,8 +124,8 @@ def geo_distance(loc1,loc2):
 def add_geo(tweets):
     """adds the new keys state and zip to each tweet dictionary in the list tweets"""
     zips = zip_list('zips.csv')
-    for k in range (len(tweets)): # loop through the tweets list and replace.
-        zipcode = find_zip(tweets[k], zips)
-        tweets[k]['zip'] = zipcode['zip']
-        tweets[k]['state']= zipcode['state']
+    for tweet in tweets: # loop through the tweets list and replace.
+        zipcode = find_zip(tweet, zips)
+        tweet['zip'] = zipcode['zip']
+        tweet['state']= zipcode['atate']
    

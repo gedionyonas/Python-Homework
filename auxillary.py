@@ -8,11 +8,30 @@
 
 import csv
 import datetime
-from geodata import make_tweet, make_zip
+
+#helper methods for make_tweet
+def make_time(date_string):
+    """Return a datetime object of the date represented in the string"""
+    
+    date_time_list = date_string.split()
+    date_list = date_time_list[0].split('-')
+    time_list = date_time_list[1].split(':')
+    
+    year=int(date_list[0])
+    month=int(date_list[1])
+    day=int(date_list[2])
+    
+    hour=int(time_list[0])
+    minute=int(time_list[1])
+    second=int(time_list[2])
+    
+    return datetime.datetime(year,month,day,hour,minute,second)
 
 def tweets_from_list(strlist):
     """Compile a list of tweet dictionaries from a list of strings"""
     tweet_list = []
+    #avoid cross import conflicts
+    from geodata import make_tweet
     for tweet in strlist:
         tweet_list.append(make_tweet(tweet))
 
@@ -21,6 +40,7 @@ def tweets_from_list(strlist):
 def zips_from_list(strlist):
     """Compile a list of zip info dictionaries from a list of strings"""
     zip_list = []
+    from geodata import make_zip
     for location in strlist[1:]:
         zip_list.append(make_zip(location))
 
@@ -34,9 +54,22 @@ def tweet_list(filename):
     input_file = open(filename,'rU')
     reader = csv.reader(input_file,dialect = csv.excel_tab)
     tweets =[]
-    for list in reader:
-        line = "\t".join(list)
-        tweets.append(line)
+
+    #buffer to handle unexcpected new lines
+    buf= "\t".join(reader.next())
+    while buf!="":
+        line = buf
+        buf = ""
+        try:
+            #next throws Stop Iteration if no element to go through
+            buf = "\t".join(reader.next())  
+            while(buf[0]!='['):
+                line+=buf
+                buf = "\t".join(reader.next())
+        except StopIteration:
+            pass   
+        finally:
+            tweets.append(line)
     input_file.close()
     return tweets_from_list(tweets)
 
@@ -54,20 +87,3 @@ def zip_list(filename):
     input_file.close()
     return zips_from_list(zips)
     
-#helper methods for make_tweet
-def make_time(date_string):
-    """Return a datetime object of the date represented in the string"""
-    
-    daidte_time_list = date_string.split()
-    date_list = date_time_list[0].split('-')
-    time_list = date_time_list[1].split(':')
-    
-    year=int(date_list[0])
-    month=int(date_list[1])
-    day=int(date_list[2])
-    
-    hour=int(time_list[0])
-    minute=int(time_list[1])
-    second=int(time_list[2])
-    
-    return datetime.datetime(year,month,day,hour,minute,second)
