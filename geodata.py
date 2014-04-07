@@ -10,7 +10,7 @@ from auxillary import make_time, zip_list
 
 #average radius of the earth in miles
 Re =3959
-MAX_DISTANCE = 500
+MAX_DISTANCE = 250
 
 
 def make_tweet(tweet_line):
@@ -112,10 +112,10 @@ def geo_distance(loc1,loc2):
     lat1 = loc1[0]
     lat2 = loc2[0]
     lon1 = loc1[1]
-    lon2 = loc1[1]
+    lon2 = loc2[1]
     
-    lat1, lat2= radians(lat1),radians(lat2) # change to radians
     dlat,dlon = radians(lat2-lat1),radians(lon2-lon1)
+    lat1, lat2= radians(lat1),radians(lat2) # change to radians
 
     h = sin((dlat)/2)**2 + cos(lat1)*cos(lat2)*sin((dlon)/2)**2
     d =2*Re*asin(sqrt(h))

@@ -61,8 +61,9 @@ def tweet_list(filename):
         buf = ""
         try:
             #next throws Stop Iteration if no element to go through
-            buf = "\t".join(reader.next())  
-            while(buf[0]!='['):
+            buf = "\t".join(reader.next())
+            #handles tweets that take more than one line
+            while(len(buf)==0 or buf[0]!='[' or not buf[1].isdigit()):
                 line+=buf
                 buf = "\t".join(reader.next())
         except StopIteration:

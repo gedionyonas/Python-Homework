@@ -2,3 +2,7 @@
 *.pyc
 some_tweets.txt
 zips.csv
+*.csv
+final.txt
+final2.txt
+*.zip
