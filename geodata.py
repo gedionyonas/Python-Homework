@@ -140,6 +140,10 @@ def write_tweets(tweets,outfile):
 
         if('zip' in tweet):
             out.write(tweet['state']+" "+tweet['zip']+"\t")
+
+        if('sentiment' in tweet):
+            out.write(str(tweet['sentiment'])+"\t")
+        
         out.write(tweet_text(tweet)+"\n")
 
     out.close()
